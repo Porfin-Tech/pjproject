@@ -802,7 +802,7 @@ PJ_DEF(pj_status_t) pjsip_dlg_fork( const pjsip_dialog *first_dlg,
     /* Get route-set from the response. */
     pj_list_init(&dlg->route_set);
     end_hdr = &msg->hdr;
-    for (hdr=msg->hdr.prev; hdr!=end_hdr; hdr=hdr->prev) {
+    for (hdr=msg->hdr.next; hdr!=end_hdr; hdr=hdr->next) {
         if (hdr->type == PJSIP_H_RECORD_ROUTE) {
             pjsip_route_hdr *r;
             r = (pjsip_route_hdr*) pjsip_hdr_clone(dlg->pool, hdr);
@@ -1184,7 +1184,7 @@ static pj_status_t dlg_create_request_throw( pjsip_dialog *dlg,
      * Contact can only be present in requests that establish dialog (in the
      * core SIP spec, only INVITE).
      */
-    if (pjsip_method_creates_dialog(method))
+    if (pjsip_method_creates_dialog(method) || method->id == PJSIP_ACK_METHOD)
         contact = dlg->local.contact;
     else
         contact = NULL;
@@ -1968,7 +1968,7 @@ static void dlg_update_routeset(pjsip_dialog *dlg, const pjsip_rx_data *rdata)
 
     /* Update route set */
     end_hdr = &msg->hdr;
-    for (hdr=msg->hdr.prev; hdr!=end_hdr; hdr=hdr->prev) {
+    for (hdr=msg->hdr.next; hdr!=end_hdr; hdr=hdr->next) {
         if (hdr->type == PJSIP_H_RECORD_ROUTE) {
             pjsip_route_hdr *r;
             r = (pjsip_route_hdr*) pjsip_hdr_clone(dlg->pool, hdr);
